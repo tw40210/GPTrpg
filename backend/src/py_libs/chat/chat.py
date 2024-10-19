@@ -1,13 +1,33 @@
+import os
+
 import openai
-from ...env import openapi_key
-api_key = openapi_key
-openai.api_key = api_key
+from pydantic import BaseModel
+from src.py_libs.chat.env import api_key
 
-def getChatGPTResponse(messages):
-    MODEL = "gpt-3.5-turbo"
-    response = openai.ChatCompletion.create(
+os.environ["OPENAI_API_KEY"] = api_key
+client = openai.OpenAI()
+
+
+def check_api():
+    if len(os.environ["OPENAI_API_KEY"]) == 0:
+        raise ValueError("OPENAI_API_KEY is not set properly, got empty")
+
+
+def get_chat_gpt_response(messages):
+    check_api()
+    MODEL = "gpt-4o-mini"
+    response = openai.ChatCompletion.create(model=MODEL, messages=messages, temperature=1)
+    return response["choices"][0]["message"]["content"]
+
+
+def get_chat_gpt_response_structure(messages: list, res_obj: BaseModel):
+    check_api()
+    MODEL = "gpt-4o-mini"
+
+    response = client.beta.chat.completions.parse(
         model=MODEL,
-        messages = messages,
-        temperature=1)
-    return response['choices'][0]['message']['content']
+        messages=messages,
+        response_format=res_obj,
+    )
 
+    return response.choices[0].message.parsed

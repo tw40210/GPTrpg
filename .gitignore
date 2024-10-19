@@ -2,5 +2,5 @@ node_modules/
 py_env/
 */__pycache__
 __pycache__/
-backend/src/py_libs/GPTrpg_core/env.py
 .vscode/
+env.py
